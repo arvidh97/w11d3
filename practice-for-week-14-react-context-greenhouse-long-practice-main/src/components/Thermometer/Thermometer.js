@@ -8,36 +8,35 @@ function Thermometer() {
   const { temperature, setTemperature } = useClimateContext();
   const [desiredTemp, setDesiredTemp] = useState(temperature)
   
-  function changeTemp(temperature, desiredTemp) {
+  function changeTemp() {
       if (desiredTemp > temperature) {
-        while (temperature < desiredTemp) {
-          setTemperature(prevTemp => prevTemp+1)
-        }
+          setTemperature(temperature + 1) // harjit's way
       }
-      else {
-        while (temperature > desiredTemp) {
-          setTemperature(prevTemp => prevTemp-1)
-        }
+      if (desiredTemp < temperature) {
+          setTemperature(prevTemp => prevTemp-1)  // arvid's way
       }
   }
 
   useEffect(() => {
-      setTimeout(changeTemp(temperature, desiredTemp), 1000)
-    }, [desiredTemp])
+      const interval = setInterval(changeTemp, 200);
+      return () => {
+        clearInterval(interval)
+      }
+    }, [temperature, desiredTemp])  // it seems like we don't need a dependency array. it still works fine without it
 
   return (
     <section>
       <h2>Thermometer</h2>
       <div className="actual-temp">Actual Temperature: {temperature}°F</div>
       <ReactSlider
-        value={temperature}
+        value={desiredTemp}
         onAfterChange={(val) => {setDesiredTemp(val)}}
         className="thermometer-slider"
         thumbClassName="thermometer-thumb"
         trackClassName="thermometer-track"
         ariaLabel={"Thermometer"}
         orientation="vertical"
-        min={0}
+        min={-120}
         max={120}
         renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
         renderTrack={(props, state) => (
